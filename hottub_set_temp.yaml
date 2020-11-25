@@ -1,0 +1,25 @@
+automation:
+  - id: hottub_set_temp
+    alias: HotTub Set Temp
+    description: Capture Hot Tub Temperature if filter is running and temp is realistic
+    mode: single
+    trigger:
+      platform: state
+      entity_id: 'sensor.hottub_pump_temp'
+      for: '00:01:00'
+    condition:
+      - condition: state
+        entity_id: 'switch.hottub_filter'
+        state: 'on'
+      - condition: numeric_state
+        entity_id: 'sensor.hottub_pump_temp'
+        above: 20.0
+    action:
+      - delay: '00:01:00'
+      - condition: numeric_state
+        entity_id: 'sensor.hottub_pump_temp'
+        above: 20.0      
+      - service: input_number.set_value
+        data:
+          entity_id: input_number.hottub_water_temp
+          value: "{{ states('sensor.hottub_pump_temp') | int }}"

@@ -1,0 +1,30 @@
+sensor:
+  - platform: template
+    sensors:
+      hottub_pump_temp:
+        availability_template: "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Pump Temperature"
+        unit_of_measurement: '°C'
+        value_template: "{{ state_attr('sensor.hottub_status', 'temp_now') | int }}"  
+      hottub_water_temp:
+        availability_template: "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Water Temperature"
+        unit_of_measurement: '°C'        
+        value_template: "{{ states('input_number.hottub_water_temp') | int }}"
+      hottub_pump_target:
+        availability_template: "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Pump Target"
+        unit_of_measurement: '°C'
+        value_template: "{{ state_attr('sensor.hottub_status', 'temp_set') | int }}"      
+      hottub_summary:
+        availability_template: "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Status"
+        value_template: "{% if is_state('sensor.hottub_online','false') %}offline{% elif is_state('sensor.hottub_error','on') %}error{% elif is_state('input_boolean.hottub_scheduled','on') and is_state('switch.hottub_filter','off') %}scheduled{% elif is_state('switch.hottub_power','off') %}off{% elif state_attr('sensor.hottub_status','heat_temp_reach')==1 %}reached{% elif is_state('switch.hottub_heat','on') %}heat{% elif is_state('switch.hottub_filter','off') %}on{% elif is_state('switch.hottub_heat','off') %}filter{% elif is_state('switch.hottub_bubbles','off') %}heat{% else %}bubbles{% endif %}"
+      hottub_error:
+        availability_template: "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Error"      
+        value_template: "{% if ( state_attr('sensor.hottub_status','system_err1') + state_attr('sensor.hottub_status','system_err2') + state_attr('sensor.hottub_status','system_err3') + state_attr('sensor.hottub_status','system_err4') + state_attr('sensor.hottub_status','system_err5') + state_attr('sensor.hottub_status','system_err6') + state_attr('sensor.hottub_status','system_err7') + state_attr('sensor.hottub_status','system_err8') + state_attr('sensor.hottub_status','system_err9') + state_attr('sensor.hottub_status','earth')) > 0 %}on{% else %}off{% endif %}"
+      hottub_price:
+        availability_template:  "{{ states('sensor.hottub_online') }}"
+        friendly_name: "HotTub Price"
+        value_template: "{% if is_state('sensor.hottub_summary','heat') %}{{ states('sensor.octopus_agile_current_rate') | float * 2 }}{% else %}0{% endif %}"

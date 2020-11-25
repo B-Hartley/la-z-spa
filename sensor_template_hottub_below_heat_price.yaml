@@ -1,0 +1,7 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      hottub_at_or_below_max_heat_cost:
+        friendly_name: "Hottub at or below max charge cost"
+        availability_template:  "{{ states('sensor.octopus_agile_current_rate') != 'unknown' }}"        
+        value_template: "{{ (states('sensor.octopus_agile_current_rate') | float) <= (states('input_number.hottub_heat_below_x_pence') | float) and (states('sensor.powerwall_charge') | float) <= ((states('input_number.overnight_powerwall_max_charge') | float + 5.0) ) }}"
